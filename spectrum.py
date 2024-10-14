@@ -6,7 +6,7 @@ from plot import plot_spectrum
 file_path = 'real_sig.dat'
 data = np.fromfile(file_path, dtype=np.int16)
 
-sig = data[:int(4e6)]               # 1 second of the signal
+sig = data[:int(4e6)]
 
 N = len(sig)
 fs = 4e6 
