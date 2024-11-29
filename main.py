@@ -9,13 +9,12 @@ from decoding import decode
 file_path = 'real_sig.dat'
 data = np.fromfile(file_path, dtype=np.int16)
 
-fc = 0
 fs = 4e6
 plot = True
 
 if plot: plot_spectrum(data,fs)
 
-prn_id, doppler_offset, code_phase_offset = acquisition(data,fc,fs,plot)
+prn_id, doppler_offset, code_phase_offset = acquisition(data,fs,plot)
 if prn_id == 0: sys.exit()
 
 I_P, Q_P = tracking(data,100000,fs,prn_id,doppler_offset,code_phase_offset,plot)

@@ -4,7 +4,7 @@ from scipy.signal import resample
 from ca_codes import codeG1, CAcodes
 from plot import plot_tracking_results, plot_correlation_surface
 
-def acquisition(data, fc, fs, plot=False):
+def acquisition(data, fs, plot=False):
 
     detection_factor = 2.5
     chip_rate = 1.023e6
@@ -12,32 +12,35 @@ def acquisition(data, fc, fs, plot=False):
     freq_range = 10e3
     freq_resolution = 200
 
-    num_samples = int(np.floor((num_chips / chip_rate) * fs)) # len of shortest sequence including 1023 chips
-    sig = data[:num_samples]
+    # Calculating length of shortest sequence including 1023 chips
+    num_samples = int((num_chips / chip_rate) * fs)
+    sig = data[:num_samples][:, np.newaxis]
 
-    g1 = 1 - 2 * np.array(codeG1())
-    upsampled_g1 = resample(g1, num_samples)
-    upsampled_g1_spectrum = np.conj(np.fft.fft(upsampled_g1, n=num_samples))
-
-    freq_idx = np.arange(fc - freq_range, fc + freq_range + 1, freq_resolution)
+    freq_idx = np.arange(-freq_range, freq_range + 1, freq_resolution)
     phase_idx = ((-2 * np.pi / fs) * np.arange(num_samples))
-    phases = np.outer(phase_idx, freq_idx) # phase values at various frequency offsets
+    phases = np.outer(phase_idx, freq_idx)
 
-    removed_carrier_sig = np.exp(-1j * phases) * sig[:, np.newaxis]
+    # Calculating phase values at various frequency offsets
+    removed_carrier_sig = np.exp(-1j * phases) * sig
     removed_carrier_sig_spectrum = np.fft.fft(removed_carrier_sig, n=num_samples, axis=0)
 
-    noise = np.abs(np.fft.ifft(removed_carrier_sig_spectrum * upsampled_g1_spectrum[:, np.newaxis], axis=0))
+    # Calculating acquisition detection threshold
+    g1 = 1 - 2 * codeG1()
+    upsampled_g1 = resample(g1, num_samples)
+    upsampled_g1_spectrum = np.fft.fft(upsampled_g1, n=num_samples)[:, np.newaxis]
+
+    noise = np.abs(np.fft.ifft(removed_carrier_sig_spectrum * np.conj(upsampled_g1_spectrum), axis=0))
     detection_threshold = np.max(noise) * np.sqrt(detection_factor)
 
     for i in range(32):
         
         cacode = 1 - 2 * CAcodes(i + 1)
         upsampled_cacode = resample(cacode, num_samples)
-        upsampled_cacode_spectrum = np.conj(np.fft.fft(upsampled_cacode, n=num_samples))
+        upsampled_cacode_spectrum = np.fft.fft(upsampled_cacode, n=num_samples)[:, np.newaxis]
 
-        time_corrval = np.abs(np.fft.ifft(removed_carrier_sig_spectrum * upsampled_cacode_spectrum[:, np.newaxis], axis=0))
+        time_corrval = np.abs(np.fft.ifft(removed_carrier_sig_spectrum * np.conj(upsampled_cacode_spectrum), axis=0))
         code_phase_offset = np.argmax(np.max(time_corrval, axis=1))
-        doppler_offset = freq_idx[np.argmax(np.max(time_corrval, axis=0))] - fc
+        doppler_offset = freq_idx[np.argmax(np.max(time_corrval, axis=0))]
 
         if np.max(time_corrval) > detection_threshold:
             print(f"\n----------------- Acquisition results -----------------")
