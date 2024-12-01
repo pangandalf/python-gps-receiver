@@ -10,7 +10,7 @@ file_path = 'real_sig.dat'
 data = np.fromfile(file_path, dtype=np.int16)
 
 fs = 4e6
-plot = True
+plot = False
 
 if plot: plot_spectrum(data,fs)
 
