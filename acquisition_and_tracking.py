@@ -105,17 +105,18 @@ def tracking(data,process_time,fs,prn_id,doppler_offset,code_phase_offset,plot=F
     chip_rate[0] = base_chip_rate
     carrier_freq = np.zeros(process_time)
     carrier_freq[0] = doppler_offset
+    data = data[code_phase_offset:]
     rem_code_offset = 0.0
     rem_phase = 0.0
     data_index = 0
 
     for i in range(1,process_time):
 
+        signal = data[data_index:data_index + num_samples]
+        data_index += num_samples
+
         code_step = chip_rate[i-1] / fs
         num_samples = int(np.ceil((num_chips - rem_code_offset) / code_step))
-
-        signal = data[code_phase_offset + data_index:code_phase_offset + data_index + num_samples]
-        data_index += num_samples
         
         tcode = (np.arange(num_samples) * code_step) + rem_code_offset
         tcode = np.mod(tcode, num_chips)
