@@ -27,9 +27,9 @@ def plot_correlation_surface(i, time_corrval, freq_idx, num_samples):
     fig = plt.figure(figsize=(12, 8))
     ax = fig.add_subplot(111, projection='3d')
     ax.plot_surface(X, Y, positive_time_corrval, cmap='viridis', rstride=1, cstride=1, antialiased=False)
-    ax.set_title('3D Correlation Surface for Positive Frequencies (PRN {})'.format(i + 1))
-    ax.set_xlabel('Doppler Shift (Hz)')
-    ax.set_ylabel('Code Phase Offset (samples)')
+    ax.set_title('Correlation Surface (PRN {})'.format(i + 1))
+    ax.set_xlabel('Doppler Shift [Hz]')
+    ax.set_ylabel('Code Phase Offset [samples]')
     ax.set_zlabel('Correlation value')
     plt.show()
 

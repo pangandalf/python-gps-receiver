@@ -43,15 +43,16 @@ def acquisition(data, fs, plot=False):
         
         cacode = 1 - 2 * CAcodes(i + 1)
         upsampled_cacode = resample(cacode, num_samples)
-        upsampled_cacode_spectrum = np.fft.fft(upsampled_cacode, n=num_samples)[:, np.newaxis]
+        upsampled_cacode_spectrum = np.fft.fft(upsampled_cacode)[:, np.newaxis]
 
-        time_corrval = np.abs(np.fft.ifft(removed_carrier_signal_spectrum * np.conj(upsampled_cacode_spectrum), axis=0))
-        code_phase_offset = np.argmax(np.max(time_corrval, axis=1))
-        doppler_offset = freq_offset[np.argmax(np.max(time_corrval, axis=0))]
+        time_corrval = np.abs(np.fft.ifft(
+            removed_carrier_signal_spectrum * np.conj(upsampled_cacode_spectrum), axis=0))
 
         if np.max(time_corrval) > detection_threshold:
+            code_phase_offset = np.argmax(np.max(time_corrval, axis=1))
+            doppler_offset = freq_offset[np.argmax(np.max(time_corrval, axis=0))]
+
             print_acquisition_results(i+1, doppler_offset, code_phase_offset)
-        
             if plot: plot_correlation_surface(i, time_corrval, freq_offset, num_samples)
 
             return i+1, doppler_offset, code_phase_offset
@@ -59,29 +60,40 @@ def acquisition(data, fs, plot=False):
     print("No satellites detected")
     return 0, None, None
 
-def calc_loop_coef(noise_bw, zeta, gain):
+def calc_loop_coeff(noise_bandwidth, damping_ratio, gain):
     
-    wn = noise_bw * 8 * zeta / (4 * zeta**2 + 1)
+    wn = noise_bandwidth * 8 * damping_ratio / (4 * damping_ratio**2 + 1)
     tau1 = gain / (wn**2)
-    tau2 = (2 * zeta) / wn
+    tau2 = (2 * damping_ratio) / wn
     coeff1 = tau2 / tau1
     coeff2 = 1 / tau1
 
     return coeff1, coeff2
 
-def tracking(data,process_time,fs,PRN,doppler_offset,code_phase_offset,plot=False):
+def tracking(data,process_time,fs,prn_id,doppler_offset,code_phase_offset,plot=False):
 
-    chip_rate = 1.023e6
+    base_chip_rate = 1.023e6
     num_chips = 1023
-    dll_noise_bandwidth = 2.0
-    dll_zeta = 0.7
     early_late_spacing = 0.5
-    pll_noise_bandwidth = 12.0
-    pll_zeta = 0.107
+    cacode = CAcodes(prn_id)
 
-    dll_coeff1, dll_coeff2 = calc_loop_coef(dll_noise_bandwidth, dll_zeta, 1.0)
-    pll_coeff1, pll_coeff2 = calc_loop_coef(pll_noise_bandwidth, pll_zeta, 1.0)
-    cacode = CAcodes(PRN)
+    dll_noise_bandwidth = 2.0
+    dll_damping_ratio = 0.7
+    dll_gain = 1.0
+    pll_noise_bandwidth = 12.0
+    pll_damping_ratio = 0.107
+    pll_gain = 1.0
+
+    dll_coeff1, dll_coeff2 = calc_loop_coeff(
+                                dll_noise_bandwidth,
+                                dll_damping_ratio,
+                                dll_gain
+                            )
+    pll_coeff1, pll_coeff2 = calc_loop_coeff(
+                                pll_noise_bandwidth,
+                                pll_damping_ratio,
+                                pll_gain
+                            )
 
     I_P = np.zeros(process_time)
     Q_P = np.zeros(process_time)
@@ -89,8 +101,8 @@ def tracking(data,process_time,fs,PRN,doppler_offset,code_phase_offset,plot=Fals
     pll_discriminator = np.zeros(process_time)
     dll_nco = np.zeros(process_time)
     pll_nco = np.zeros(process_time)
-    code_freq = np.zeros(process_time)
-    code_freq[0] = chip_rate
+    chip_rate = np.zeros(process_time)
+    chip_rate[0] = base_chip_rate
     carrier_freq = np.zeros(process_time)
     carrier_freq[0] = doppler_offset
     rem_code_offset = 0.0
@@ -99,7 +111,7 @@ def tracking(data,process_time,fs,PRN,doppler_offset,code_phase_offset,plot=Fals
 
     for i in range(1,process_time):
 
-        code_step = code_freq[i-1] / fs
+        code_step = chip_rate[i-1] / fs
         num_samples = int(np.ceil((num_chips - rem_code_offset) / code_step))
 
         signal = data[code_phase_offset + data_index:code_phase_offset + data_index + num_samples]
@@ -142,9 +154,9 @@ def tracking(data,process_time,fs,PRN,doppler_offset,code_phase_offset,plot=Fals
         dll_discriminator[i] = (E_mag - L_mag) / (E_mag + L_mag + 1e-6)
 
         dll_nco[i] = dll_nco[i-1] + dll_coeff1 * dll_discriminator[i] + dll_coeff2 * (dll_discriminator[i] - dll_discriminator[i-1])
-        code_freq[i] = chip_rate - dll_nco[i]
+        chip_rate[i] = base_chip_rate - dll_nco[i]
 
     if plot:
-        plot_tracking_results(pll_discriminator, pll_nco, carrier_freq, dll_discriminator, dll_nco, code_freq)
+        plot_tracking_results(pll_discriminator, pll_nco, carrier_freq, dll_discriminator, dll_nco, chip_rate)
 
     return I_P, Q_P

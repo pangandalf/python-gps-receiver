@@ -10,12 +10,14 @@ file_path = 'real_sig.dat'
 data = np.fromfile(file_path, dtype=np.int16)
 
 fs = 4e6
-plot = False
+plot = True
 
 if plot: plot_spectrum(data,fs)
 
 prn_id, doppler_offset, code_phase_offset = acquisition(data,fs,plot)
-if prn_id == 0: sys.exit()
+if prn_id == 0:
+    print("Acquisition failed. No signal from any satellite detected.")
+    sys.exit()
 
 I_P, Q_P = tracking(data,100000,fs,prn_id,doppler_offset,code_phase_offset,plot)
 I_P_normalized = I_P / np.sqrt(np.mean(I_P**2))
