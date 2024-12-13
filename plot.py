@@ -33,44 +33,32 @@ def plot_correlation_surface(i, time_corrval, freq_idx, num_samples):
     ax.set_zlabel('Correlation value')
     plt.show()
 
-def plot_tracking_results(pll_discriminator, pll_nco, carrier_freq, dll_discriminator, dll_nco, code_freq):
+def plot_tracking_results(carrier_freq, dll_nco):
 
-    plt.figure(figsize=(10, 15))
-
-    plt.subplot(6, 1, 1)
-    plt.plot(pll_discriminator)
-    plt.ylabel('PLL Discriminator')
-
-    plt.subplot(6, 1, 2)
-    plt.plot(pll_nco)
-    plt.ylabel('PLL NCO')
-
-    plt.subplot(6, 1, 3)
-    plt.plot(carrier_freq)
-    plt.ylabel('Carrier Frequency')
-
-    plt.subplot(6, 1, 4)
-    plt.plot(dll_discriminator)
-    plt.ylabel('DLL Discriminator')
-
-    plt.subplot(6, 1, 5)
-    plt.plot(dll_nco)
-    plt.ylabel('DLL NCO')
-
-    plt.subplot(6, 1, 6)
-    plt.plot(code_freq)
-    plt.ylabel('Code Frequency')
-
-    plt.xlabel('Time (samples)')
-    plt.tight_layout()
+    plt.figure(figsize=(10, 4))
+    plt.plot(carrier_freq[:20000])
+    plt.ylabel('Frequency [Hz]',fontsize=14)
+    plt.xlabel('Time [milliseconds]',fontsize=14)
+    plt.title('Carrier frequency tracking',fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(True)
     plt.show()
 
-def plot_constellation_diagram(I_P_normalized, Q_P, sample_delay):
+    plt.figure(figsize=(10, 4))
+    plt.plot(dll_nco[:20000])
+    plt.ylabel('Offset [chips]',fontsize=14)
+    plt.xlabel('Time [milliseconds]',fontsize=14)
+    plt.title('DLL NCO',fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(True)
+    plt.show()
 
-    Q_P_normalized = Q_P / np.max(Q_P)
+def plot_constellation_diagram(I, Q, sample_delay):
     
     plt.figure(figsize=(6, 6))
-    plt.plot(I_P_normalized[sample_delay:], Q_P_normalized[sample_delay:], '.')
+    plt.plot(I[sample_delay:], Q[sample_delay:], '.')
     plt.title('Constellation Diagram')
     plt.xlabel('I Prompt')
     plt.ylabel('Q Prompt')

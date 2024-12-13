@@ -118,17 +118,17 @@ def tracking(data,process_time,fs,prn_id,doppler_offset,code_phase_offset,plot=F
         signal = data[data_index:data_index + num_samples]
         data_index += num_samples
         
-        tcode = (np.arange(num_samples) * code_step) + rem_code_offset
-        tcode = np.mod(tcode, num_chips)
-        rem_code_offset = np.mod(tcode[-1] + code_step, num_chips)
+        code_offset = (np.arange(num_samples) * code_step) + rem_code_offset
+        code_offset = np.mod(code_offset, num_chips)
+        prompt_code = cacode[np.floor(code_offset).astype(int)]
         
-        tcode_early = np.mod(tcode - early_late_spacing, num_chips)
-        early_code = cacode[np.floor(tcode_early).astype(int)]
+        code_offset_early = np.mod(code_offset - early_late_spacing, num_chips)
+        early_code = cacode[np.floor(code_offset_early).astype(int)]
 
-        prompt_code = cacode[np.floor(tcode).astype(int)]
+        code_offset_late = np.mod(code_offset + early_late_spacing, num_chips)
+        late_code = cacode[np.floor(code_offset_late).astype(int)]
 
-        tcode_late = np.mod(tcode + early_late_spacing, num_chips)
-        late_code = cacode[np.floor(tcode_late).astype(int)]
+        rem_code_offset = np.mod(code_offset[-1] + code_step, num_chips)
 
         time = np.arange(num_samples) / fs
         phase = (carrier_freq[i-1] * 2.0 * np.pi * time) + rem_phase
@@ -145,19 +145,21 @@ def tracking(data,process_time,fs,prn_id,doppler_offset,code_phase_offset,plot=F
         I_L = np.sum(late_code * I_sig)
         Q_L = np.sum(late_code * Q_sig)
 
-        pll_discriminator[i] = 0.5 * np.arctan2(2 * I_P[i] * Q_P[i], I_P[i]**2 - Q_P[i]**2)
+        pll_discriminator[i] = np.arctan(Q_P[i] / I_P[i])
 
-        pll_nco[i] = pll_nco[i-1] + pll_coeff1 * pll_discriminator[i] + pll_coeff2 * (pll_discriminator[i] - pll_discriminator[i-1])
+        pll_nco[i] = pll_nco[i-1] + pll_coeff1 * pll_discriminator[i] \
+            + pll_coeff2 * (pll_discriminator[i] - pll_discriminator[i-1])
         carrier_freq[i] = doppler_offset + pll_nco[i] / (2 * np.pi)
 
-        E_mag = np.sqrt(I_E**2 + Q_E**2)
-        L_mag = np.sqrt(I_L**2 + Q_L**2)
-        dll_discriminator[i] = (E_mag - L_mag) / (E_mag + L_mag + 1e-6)
+        E = np.sqrt(I_E**2 + Q_E**2)
+        L = np.sqrt(I_L**2 + Q_L**2)
+        dll_discriminator[i] = (E - L) / (E + L + 1e-6)
 
-        dll_nco[i] = dll_nco[i-1] + dll_coeff1 * dll_discriminator[i] + dll_coeff2 * (dll_discriminator[i] - dll_discriminator[i-1])
+        dll_nco[i] = dll_nco[i-1] + dll_coeff1 * dll_discriminator[i] \
+            + dll_coeff2 * (dll_discriminator[i] - dll_discriminator[i-1])
         chip_rate[i] = base_chip_rate - dll_nco[i]
 
     if plot:
-        plot_tracking_results(pll_discriminator, pll_nco, carrier_freq, dll_discriminator, dll_nco, chip_rate)
+        plot_tracking_results(carrier_freq, dll_nco)
 
     return I_P, Q_P
