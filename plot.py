@@ -65,3 +65,15 @@ def plot_constellation_diagram(I, Q, sample_delay):
     plt.grid(True)
     plt.axis('equal')
     plt.show()
+
+def plot_BPSK_symbols(I, start, end):
+
+    plt.figure(figsize=(10, 4))
+    plt.plot(np.arange(start, end), I[start:end])
+    plt.ylabel('BPSK value', fontsize=14)
+    plt.xlabel('Time [milliseconds]', fontsize=14)
+    plt.title('BPSK symbols', fontsize=14)
+    plt.xticks([start, end-1], fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(True)
+    plt.show()

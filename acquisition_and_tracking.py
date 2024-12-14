@@ -81,7 +81,7 @@ def tracking(data,process_time,fs,prn_id,doppler_offset,code_phase_offset,plot=F
     dll_damping_ratio = 0.7
     dll_gain = 1.0
     pll_noise_bandwidth = 12.0
-    pll_damping_ratio = 0.107
+    pll_damping_ratio = 0.2
     pll_gain = 1.0
 
     dll_coeff1, dll_coeff2 = calc_loop_coeff(
@@ -159,7 +159,6 @@ def tracking(data,process_time,fs,prn_id,doppler_offset,code_phase_offset,plot=F
             + dll_coeff2 * (dll_discriminator[i] - dll_discriminator[i-1])
         chip_rate[i] = base_chip_rate - dll_nco[i]
 
-    if plot:
-        plot_tracking_results(carrier_freq, dll_nco)
+    if plot: plot_tracking_results(carrier_freq, dll_nco)
 
     return I_P, Q_P
