@@ -1,9 +1,9 @@
-def find_preamble(binary_string):
+def find_preamble(bitstream):
 
     indexes = []
-    for i in range(len(binary_string) - 7):
-        if binary_string[i:i+8] == '10001011':
-            if i+300<len(binary_string) and binary_string[i+300:i+308] == '10001011':
+    for i in range(len(bitstream) - 7):
+        if bitstream[i:i+8] == '10001011':
+            if i+300<len(bitstream) and bitstream[i+300:i+308]=='10001011':
                 indexes.append(i)
                 i += 300
 
@@ -17,35 +17,35 @@ def get_words(subframe):
         words.append(word)
     return words
 
-def get_pages(subframes):
+def select_subframes(subframes):
 
-    pages = []
+    select_subframes = []
     for subframe in subframes:
         subframe_num = int(subframe[49:52],2)
         if subframe_num in [1,2,3]: continue
 
-        pages.append(subframe)
+        select_subframes.append(subframe)
 
-    return pages
+    return select_subframes
 
-def get_pages_with_almanac(pages):
+def select_subframes_with_almanac(subframes):
     
-    pages_with_almanac = []
-    for i in range(len(pages)):
-        subframe_num = int(pages[i][49:52],2)
+    subframes_with_almanac = []
+    for i in range(len(subframes)):
+        subframe_num = int(subframes[i][49:52],2)
         if subframe_num == 4:
-            if i!=len(pages)-1 and int(pages[i+1][62:68],2) in [2,3,4,5,7,8,9,10]:
-                pages_with_almanac.append(pages[i])
-                pages_with_almanac.append(pages[i+1])
+            if i!=len(subframes)-1 and int(subframes[i+1][62:68],2) in [2,3,4,5,7,8,9,10]:
+                subframes_with_almanac.append(subframes[i])
+                subframes_with_almanac.append(subframes[i+1])
                 i += 1
-            elif i==len(pages)-1 and int(pages[i-1][62:68],2) in [1,2,3,4,6,7,8,9]:
-                pages_with_almanac.append(pages[i])
+            elif i==len(subframes)-1 and int(subframes[i-1][62:68],2) in [1,2,3,4,6,7,8,9]:
+                subframes_with_almanac.append(subframes[i])
             continue
 
-        if int(pages[i][62:68],2)!=25:
-            pages_with_almanac.append(pages[i])
+        if int(subframes[i][62:68],2)!=25:
+            subframes_with_almanac.append(subframes[i])
             
-    return pages_with_almanac
+    return subframes_with_almanac
 
 def get_almanac_data(pages_with_almanac):
 
@@ -90,16 +90,16 @@ def get_almanac_data(pages_with_almanac):
             f.write(f"  9) Clock bias: {clock_bias} [s]\n")
             f.write(f"  10) Clock drift: {clock_drift} [s/s]\n")
 
-def decode(binary_string):
+def decode(bitstream):
 
-    indexes = find_preamble(binary_string)
+    indexes = find_preamble(bitstream)
 
     subframes = []
     for i in indexes:
-        subframes.append(binary_string[i:i+300])
+        subframes.append(bitstream[i:i+300])
 
-    pages = get_pages(subframes)
-    pages_with_almanac = get_pages_with_almanac(pages)
+    pages = select_subframes(subframes)
+    pages_with_almanac = select_subframes_with_almanac(pages)
     get_almanac_data(pages_with_almanac)
 
     with open('almanac_data.txt', 'r') as f:
