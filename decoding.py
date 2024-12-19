@@ -1,5 +1,5 @@
-def find_preamble(bitstream):
 
+def find_preamble(bitstream):
     indexes = []
     for i in range(len(bitstream) - 7):
         if bitstream[i:i+8] == '10001011':
@@ -10,60 +10,37 @@ def find_preamble(bitstream):
     return indexes
 
 def get_words(subframe):
-
     words = []
     for i in range(0, 300, 30):
         word = subframe[i:i+30]
         words.append(word)
     return words
 
-def select_subframes(subframes):
-
-    select_subframes = []
-    for subframe in subframes:
-        subframe_num = int(subframe[49:52],2)
-        if subframe_num in [1,2,3]: continue
-
-        select_subframes.append(subframe)
-
-    return select_subframes
-
 def select_subframes_with_almanac(subframes):
-    
     subframes_with_almanac = []
     for i in range(len(subframes)):
         subframe_num = int(subframes[i][49:52],2)
-        if subframe_num == 4:
-            if i!=len(subframes)-1 and int(subframes[i+1][62:68],2) in [2,3,4,5,7,8,9,10]:
-                subframes_with_almanac.append(subframes[i])
-                subframes_with_almanac.append(subframes[i+1])
-                i += 1
-            elif i==len(subframes)-1 and int(subframes[i-1][62:68],2) in [1,2,3,4,6,7,8,9]:
-                subframes_with_almanac.append(subframes[i])
-            continue
+        satellite_num = int(subframes[i][62:68],2)
 
-        if int(subframes[i][62:68],2)!=25:
+        if subframe_num == 4:
+            if satellite_num in [2,3,4,5,7,8,9,10]:
+                subframes_with_almanac.append(subframes[i])
+
+        if subframe_num == 5 and satellite_num != 25:
             subframes_with_almanac.append(subframes[i])
-            
+
     return subframes_with_almanac
 
-def get_almanac_data(pages_with_almanac):
-
+def get_almanac_data(subframes_with_almanac):
     with open('almanac_data.txt', 'w') as f:
         f.write("")
 
-    for page in pages_with_almanac:
+    for subframe in subframes_with_almanac:
 
-        words = get_words(page)
+        words = get_words(subframe)
 
         subframe_num = int(words[1][19:22],2)
-        page_num = int(words[2][2:8],2)
-
-        if subframe_num == 4:
-            indexes = [2,3,4,5,7,8,9,10]
-            satelite_num = 25 + indexes.index(page_num)
-        else:
-            satelite_num = page_num
+        satelite_num = int(words[2][2:8],2)
 
         eccentricity = int(words[2][8:24],2)
         almanac_reference_time = int(words[3][0:8],2)
@@ -78,7 +55,7 @@ def get_almanac_data(pages_with_almanac):
 
         with open('almanac_data.txt', 'a') as f:
             f.write(f"\n----------------- Satelite number: {satelite_num} -----------------\n")
-            f.write(f"\t\t (Subframe {subframe_num}, Page {page_num})\n")
+            f.write(f"                     (Subframe {subframe_num})\n")
             f.write(f"  1) Eccentricity: {eccentricity}\n")
             f.write(f"  2) Almanac reference time: {almanac_reference_time} [s]\n")
             f.write(f"  3) Orbital inclination: {orbital_inclination} [deg]\n")
@@ -91,15 +68,13 @@ def get_almanac_data(pages_with_almanac):
             f.write(f"  10) Clock drift: {clock_drift} [s/s]\n")
 
 def decode(bitstream):
-
     indexes = find_preamble(bitstream)
 
     subframes = []
     for i in indexes:
         subframes.append(bitstream[i:i+300])
 
-    pages = select_subframes(subframes)
-    pages_with_almanac = select_subframes_with_almanac(pages)
+    pages_with_almanac = select_subframes_with_almanac(subframes)
     get_almanac_data(pages_with_almanac)
 
     with open('almanac_data.txt', 'r') as f:

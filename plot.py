@@ -3,7 +3,6 @@ import numpy as np
 from numpy.fft import fft, fftshift
 
 def plot_spectrum(data, fs):
-    
     N = int(fs)
     signal = data[:N]
 
@@ -12,14 +11,15 @@ def plot_spectrum(data, fs):
 
     plt.figure(figsize=(10, 6))
     plt.plot(f/1e6, 20 * np.log10(np.abs(fft_signal)))  # dB/MHz
-    plt.xlabel('Frequency (MHz)')
-    plt.ylabel('Magnitude (dB)')
+    plt.xlabel('Frequency [MHz]')
+    plt.ylabel('Magnitude [dB]')
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
     plt.title('Spectrum of the received GPS signal')
     plt.grid(True)
     plt.show()
 
 def plot_correlation_surface(i, time_corrval, freq_idx, num_samples):
-
     positive_freq_idx = freq_idx[freq_idx >= 0]
     positive_time_corrval = time_corrval[:, freq_idx >= 0]
     X, Y = np.meshgrid(positive_freq_idx, np.arange(num_samples))
@@ -34,7 +34,6 @@ def plot_correlation_surface(i, time_corrval, freq_idx, num_samples):
     plt.show()
 
 def plot_tracking_results(carrier_freq, dll_nco):
-
     plt.figure(figsize=(10, 4))
     plt.plot(carrier_freq[:20000])
     plt.ylabel('Frequency [Hz]',fontsize=14)
@@ -56,7 +55,6 @@ def plot_tracking_results(carrier_freq, dll_nco):
     plt.show()
 
 def plot_constellation_diagram(I, Q, sample_delay):
-    
     plt.figure(figsize=(6, 6))
     plt.plot(I[sample_delay:], Q[sample_delay:], '.')
     plt.title('Constellation Diagram')
@@ -67,7 +65,6 @@ def plot_constellation_diagram(I, Q, sample_delay):
     plt.show()
 
 def plot_BPSK_symbols(I, start, end):
-
     plt.figure(figsize=(10, 4))
     plt.plot(np.arange(start, end), I[start:end])
     plt.ylabel('BPSK value', fontsize=14)

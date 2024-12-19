@@ -11,7 +11,6 @@ def print_acquisition_results(prn_id, doppler_offset, code_phase_offset):
     print("  3) Code-phase offset:", code_phase_offset)
 
 def acquisition(data, fs, plot=False):
-
     detection_factor = 2.5
     chip_rate = 1.023e6
     num_chips = 1023
@@ -40,7 +39,6 @@ def acquisition(data, fs, plot=False):
 
     # Acquisition algorithm
     for i in range(32):
-        
         cacode = 1 - 2 * CAcodes(i + 1)
         upsampled_cacode = resample(cacode, num_samples)
         upsampled_cacode_spectrum = np.fft.fft(upsampled_cacode)[:, np.newaxis]
@@ -61,7 +59,6 @@ def acquisition(data, fs, plot=False):
     return 0, None, None
 
 def calc_loop_coeff(noise_bandwidth, damping_ratio, gain):
-    
     wn = noise_bandwidth * 8 * damping_ratio / (4 * damping_ratio**2 + 1)
     tau1 = gain / (wn**2)
     tau2 = (2 * damping_ratio) / wn
@@ -71,7 +68,6 @@ def calc_loop_coeff(noise_bandwidth, damping_ratio, gain):
     return coeff1, coeff2
 
 def tracking(data,process_time,fs,prn_id,doppler_offset,code_phase_offset,plot=False):
-
     base_chip_rate = 1.023e6
     num_chips = 1023
     early_late_spacing = 0.5
@@ -111,7 +107,6 @@ def tracking(data,process_time,fs,prn_id,doppler_offset,code_phase_offset,plot=F
     data_index = 0
 
     for i in range(1,process_time):
-
         code_step = chip_rate[i-1] / fs
         num_samples = int(np.ceil((num_chips - rem_code_offset) / code_step))
 

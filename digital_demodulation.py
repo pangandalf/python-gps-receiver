@@ -3,7 +3,6 @@ import numpy as np
 from plot import plot_BPSK_symbols, plot_constellation_diagram
 
 def convert_samples_to_bpsk_symbols(I, plot):
-
     if plot: plot_BPSK_symbols(I, 0, 1000)
 
     bpsk_symbols = []
@@ -14,7 +13,6 @@ def convert_samples_to_bpsk_symbols(I, plot):
     return bpsk_symbols
 
 def find_pll_induced_offset(bpsk_symbols):
-
     pll_offset = 0
 
     for i in range(len(bpsk_symbols) - 60):
@@ -30,7 +28,6 @@ def find_pll_induced_offset(bpsk_symbols):
     return pll_offset
 
 def get_bitstream(bpsk_symbols):
-
     bit_duration = 20
     bitstream = []
     for sample_index in range(0, len(bpsk_symbols) - bit_duration, bit_duration):
@@ -40,7 +37,6 @@ def get_bitstream(bpsk_symbols):
     return ''.join(map(str, bitstream))
 
 def digital_demodulation(I, Q, plot=False):
-
     I_normalized = I / np.sqrt(np.mean(I**2))
     Q_normalized = Q / np.max(Q)
 
