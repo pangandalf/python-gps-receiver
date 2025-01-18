@@ -1,6 +1,4 @@
 import numpy as np
-import sys
-
 from plot import plot_spectrum
 from acquisition_and_tracking import acquisition, tracking
 from digital_demodulation import digital_demodulation
@@ -8,7 +6,6 @@ from decoding import decode
 
 file_path = 'real_sig.dat'
 data = np.fromfile(file_path, dtype=np.int16)
-
 fs = 4e6
 plot = False
 
