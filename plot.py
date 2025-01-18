@@ -2,7 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.fft import fft, fftshift
 
-def plot_spectrum(data, fs):
+def plot_spectrum(data, fs, plot):
+    if not plot:
+        return
+
     N = int(fs)
     signal = data[:N]
 
