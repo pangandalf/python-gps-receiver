@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 from scipy.signal import resample
 
 from ca_codes import codeG1, CAcodes
@@ -56,7 +57,7 @@ def acquisition(data, fs, plot=False):
             return i+1, doppler_offset, code_phase_offset
 
     print("No satellites detected")
-    return 0, None, None
+    sys.exit()
 
 def calc_loop_coeff(noise_bandwidth, damping_ratio, gain):
     wn = noise_bandwidth * 8 * damping_ratio / (4 * damping_ratio**2 + 1)
