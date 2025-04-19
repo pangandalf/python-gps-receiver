@@ -27,7 +27,7 @@ pip3 install -r requirements.txt
 ### Input data
 To test the receiver, you will need raw sample data recorded from a GPS L1 signal. This receiver processes only the real (in-phase) component of the signal – not complex I/Q data. Make sure the file contains signed 16-bit integers (int16) representing real-valued samples.
 
-If you don't have your own recordings, you can use public datasets as a starting point and extract only the real part if needed. Sample data can be downloaded e.g. from [gnss-sdr](https://github.com/gnss-sdr/gnss-sdr) project page on [SourceForge](https://sourceforge.net/projects/gnss-sdr/files/data/). Alternatively, use this `wget` command in your terminal:
+If you don't have your own recordings, you can use public datasets as a starting point and extract only the real part if needed. Sample data can be downloaded e.g. from [gnss-sdr](https://github.com/gnss-sdr/gnss-sdr) project page on [SourceForge](https://sourceforge.net/projects/gnss-sdr/files/data/). Alternatively (on Linux or WSL), use this `wget` command in your terminal:
 ```bash
 wget https://sourceforge.net/projects/gnss-sdr/files/data/2013_04_04_GNSS_SIGNAL_at_CTTC_SPAIN.tar.gz
 ```
