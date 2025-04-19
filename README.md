@@ -49,4 +49,20 @@ In the `main.py` file, adjust the sampling frequency `fs` to match your input da
 python3 main.py
 ```
 
-## 📄 Output
+## 📈 Output
+### 1. Signal spectrum visualization
+![Signal spectrum](screenshots/spectrum.png)
+### 2. Correlation surface received in the signal acquisition phase
+![Correlation surface](screenshots/correlation_surface.png)
+### 3. Carrier frequency tracking
+![Carrier tracking](screenshots/carrier_frequency.png)
+### 4. Code-phase offset correction over time
+![Code-phase offset](screenshots/dll_nco.png)
+### 5. BPSK constellation diagram
+![Constellation](screenshots/constellation_diagram.png)
+### 6. BPSK symbols
+![BPSK symbols](screenshots/bpsk_symbols.png)
+
+## 📄 Decoding results
+```plaintext
+```
