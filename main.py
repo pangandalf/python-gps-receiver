@@ -4,10 +4,10 @@ from acquisition_and_tracking import acquisition, tracking
 from digital_demodulation import digital_demodulation
 from decoding import decode
 
-file_path = 'real_sig.dat'
+file_path = 'data.dat'
 data = np.fromfile(file_path, dtype=np.int16)
 fs = 4e6
-plot = False
+plot = True
 
 plot_spectrum(data, fs, plot)
 prn_id, doppler_offset, code_phase_offset = acquisition(data, fs, plot)
