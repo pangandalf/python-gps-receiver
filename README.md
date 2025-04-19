@@ -63,14 +63,18 @@ python3 main.py
 ### 6. BPSK symbols
 ![BPSK symbols](screenshots/bpsk_symbols.png)
 
-## 📄 Decoding results
-> Note: Values are raw binary fields decoded from the NAV message, without applying scaling factors from ICD-GPS-200.
+## 📄 Results
+### 1. Acquisition results
 ```plaintext
 ----------------- Acquisition results -----------------
   1) Detected satellite PRN ID: 1
   2) Doppler offset: 7000.0
   3) Code-phase offset: 3988
+```
 
+### 2. Decoding results
+> Note: Values are raw binary fields decoded from the NAV message, without applying scaling factors from ICD-GPS-200.
+```plaintext
 ----------------- Satelite number: 12 -----------------
                      (Subframe 5)
   1) Eccentricity: 9361
