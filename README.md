@@ -1,9 +1,10 @@
 # 🛰️ python-gps-receiver
-This project implements a software-defined GPS L1 receiver in Python. It focuses on the full signal processing chain required to extract navigation messages from raw I/Q samples using standard GPS signal structure and modulation.
+
+This project implements a software-defined GPS L1 receiver in Python. It covers the full signal processing chain required to extract navigation messages from raw real-valued samples, based on the standard GPS signal structure and BPSK modulation.
 
 ## 📦 Features
-- Reads raw I/Q data from `.dat` file
-- Signal spectrum visualization
+- Reads raw real-valued data from `.dat` file (`int16` format)
+- Signal spectrum visualization (optional)
 - Satellite acquisition using correlation techniques
 - Carrier and code tracking loop (DLL + PLL)
 - Digital demodulation (BPSK)
@@ -24,11 +25,10 @@ pip3 install -r requirements.txt
 ```
 <br/>
 
----
-
 ### Input data
+To test the receiver, you will need raw sample data recorded from a GPS L1 signal. This receiver processes only the real (in-phase) component of the signal – not complex I/Q data. Make sure the file contains signed 16-bit integers (int16) representing real-valued samples.
 
-Sample data can be downloaded from [gnss-sdr](https://github.com/gnss-sdr/gnss-sdr) project page on [SourceForge](https://sourceforge.net/projects/gnss-sdr/files/data/). Alternatively, use this `wget` command in your terminal:<br/>
+If you don't have your own recordings, you can use public datasets as a starting point and extract only the real part if needed. Sample data can be downloaded from [gnss-sdr](https://github.com/gnss-sdr/gnss-sdr) project page on [SourceForge](https://sourceforge.net/projects/gnss-sdr/files/data/). Alternatively, use this `wget` command in your terminal:<br/>
 ```bash
 wget https://sourceforge.net/projects/gnss-sdr/files/data/2013_04_04_GNSS_SIGNAL_at_CTTC_SPAIN.tar.gz
 ```
@@ -37,4 +37,9 @@ If the estimated download time is too long, you can also download the data using
 Then unpack the archive:
 ```bash
 tar -zxvf 2013_04_04_GNSS_SIGNAL_at_CTTC_SPAIN.tar.gz
+```
+
+Finally, run the script to extract only the real component of the signal:
+```python
+python3 prepare_data.py
 ```
