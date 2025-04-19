@@ -1,4 +1,4 @@
-# 🛰️ python-gps-receiver
+# 🛰️ Python GPS receiver
 
 This project implements a software-defined GPS L1 receiver in Python. It covers the full signal processing chain required to extract navigation messages from raw real-valued samples, based on the standard GPS signal structure and BPSK modulation.
 
@@ -48,3 +48,5 @@ In the `main.py` file, adjust the sampling frequency `fs` to match your input da
 ```python
 python3 main.py
 ```
+
+## 📄 Output
