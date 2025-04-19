@@ -42,3 +42,9 @@ Finally, run the script to extract only the real component of the signal:
 ```python
 python3 prepare_data.py
 ```
+
+## ▶️ Usage
+In the `main.py` file, adjust the sampling frequency `fs` to match your input data. A default value of 4 MHz is provided for compatibility with the [gnss-sdr](https://github.com/gnss-sdr/gnss-sdr) dataset. You can also enable or disable plotting by setting the `plot` boolean variable. Then run:
+```python
+python3 main.py
+```
